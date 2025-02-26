@@ -7,8 +7,14 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createUserDto: CreateUserDto) {
-    return this.prisma.user.create({ data: createUserDto });
+  async createOrUpdate(createUserDto: CreateUserDto) {
+    const { clerkId, email, name, imageUrl, role } = createUserDto;
+
+    return this.prisma.user.upsert({
+      where: { clerkId }, // Check if user already exists via Clerk ID
+      update: { email, name, imageUrl, role }, // Update existing user data
+      create: { clerkId, email, name, imageUrl, role }, // Create new user
+    });
   }
 
   async findAll() {
